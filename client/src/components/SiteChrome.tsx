@@ -189,7 +189,7 @@ export function Footer() {
         <div><span className="mono-label text-teal">RESOURCES / 06</span><div className="mt-5 grid gap-3 text-sm text-white/55">{resources.map((resource) => <Link key={resource.slug} href={`/resources/${resource.slug}`} className="hover:text-white">{resource.title}</Link>)}</div></div>
         <div><span className="mono-label text-teal">CASE STUDIES / 04</span><div className="mt-5 grid gap-3 text-sm text-white/55">{caseStudies.map((study) => <Link key={study.slug} href={`/case-studies/${study.slug}`} className="hover:text-white">{study.title}</Link>)}</div></div>
       </div>
-      <div className="mt-12 flex flex-col gap-4 text-[11px] uppercase tracking-[0.1em] text-white/35 md:flex-row md:items-center md:justify-between"><span>© {new Date().getFullYear()} Zulubing. Content subject to verification.</span><div className="flex flex-wrap gap-5"><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link><Link href="/terms-of-use" className="hover:text-white">Terms of Use</Link><Link href="/cookie-policy" className="hover:text-white">Cookie Policy</Link></div></div>
+      <div className="mt-12 flex flex-col gap-4 text-[11px] uppercase tracking-[0.1em] text-white/35 md:flex-row md:items-center md:justify-between"><span>© {new Date().getFullYear()} Zulubing. All Rights Reserved.</span><div className="flex flex-wrap gap-5"><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link><Link href="/terms-of-use" className="hover:text-white">Terms of Use</Link><Link href="/cookie-policy" className="hover:text-white">Cookie Policy</Link></div></div>
     </div>
   </footer>;
 }
