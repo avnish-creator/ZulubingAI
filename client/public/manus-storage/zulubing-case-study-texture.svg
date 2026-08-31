@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img" aria-label="Abstract layered technical data texture">
+  <defs>
+    <pattern id="zt-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M30 0H0V30" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="zt-glow" cx=".28" cy=".22" r=".85">
+      <stop offset="0" stop-color="#11c4c2" stop-opacity=".38"/>
+      <stop offset=".45" stop-color="#1f5ed8" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#08131f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="zt-strata" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11c4c2" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#1f5ed8" stop-opacity=".12"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="400" fill="#08131f"/>
+  <rect width="600" height="400" fill="url(#zt-grid)"/>
+  <rect width="600" height="400" fill="url(#zt-glow)"/>
+
+  <!-- layered strata planes -->
+  <g fill="none" stroke="url(#zt-strata)" stroke-width="1.5">
+    <path d="M-40 250L200 130L440 210L660 100"/>
+    <path d="M-40 285L200 165L440 245L660 135"/>
+    <path d="M-40 320L200 200L440 280L660 170"/>
+    <path d="M-40 355L200 235L440 315L660 205"/>
+  </g>
+  <g fill="#11c4c2" fill-opacity=".05">
+    <path d="M-40 285L200 165L440 245L660 135V170L440 280L200 200L-40 320Z"/>
+  </g>
+
+  <!-- vertical scan rules -->
+  <g stroke="#ffffff" stroke-opacity=".08" stroke-width="1">
+    <path d="M120 0V400"/><path d="M300 0V400"/><path d="M480 0V400"/>
+  </g>
+
+  <!-- flow arcs -->
+  <g fill="none" stroke="#11c4c2" stroke-opacity=".55" stroke-width="1.4">
+    <path d="M40 90C160 60 220 140 340 110C440 85 500 130 580 105"/>
+    <path d="M40 130C160 100 220 180 340 150C440 125 500 170 580 145"/>
+  </g>
+
+  <!-- data nodes -->
+  <g fill="#11c4c2">
+    <rect x="117" y="87" width="7" height="7"/>
+    <rect x="297" y="118" width="7" height="7"/>
+    <rect x="477" y="112" width="7" height="7"/>
+    <rect x="197" y="162" width="6" height="6"/>
+    <rect x="437" y="242" width="6" height="6"/>
+  </g>
+  <g fill="#1f5ed8" fill-opacity=".85">
+    <rect x="117" y="127" width="7" height="7"/>
+    <rect x="297" y="158" width="7" height="7"/>
+    <rect x="477" y="152" width="7" height="7"/>
+  </g>
+
+  <!-- corner tick marks -->
+  <g stroke="#ffffff" stroke-opacity=".22" stroke-width="1.5" fill="none">
+    <path d="M24 24h22M24 24v22"/>
+    <path d="M576 376h-22M576 376v-22"/>
+  </g>
+</svg>
