@@ -109,7 +109,7 @@ export function Header() {
           <Link href="/about" onMouseEnter={() => setActiveMenu(null)} onFocus={() => setActiveMenu(null)} className={`nav-link ${isDarkHeader ? "text-white hover:text-teal" : "text-ink hover:text-cobalt"}`}>About</Link>
         </nav>
         <div className="flex items-center gap-3">
-          <Link href="/talk-to-an-expert" className={`hidden items-center gap-2 border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition duration-200 sm:inline-flex ${isDarkHeader ? "border-[#11c4c2] bg-[#11c4c2] text-ink hover:bg-white hover:border-white" : "border-ink bg-ink text-white hover:bg-[#11c4c2] hover:text-ink hover:border-[#11c4c2]"}`}>
+          <Link href="/talk-to-an-expert" className={`hidden items-center gap-2 border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition duration-200 sm:inline-flex ${isDarkHeader ? "border-[#11c4c2] bg-[#11c4c2] text-ink hover:bg-white hover:border-white" : "border-ink bg-ink text-white! hover:bg-[#11c4c2] hover:border-[#11c4c2] hover:text-[#08131f]!"}`}>
             Talk to an Expert <ArrowUpRight size={14} />
           </Link>
           <button type="button" onClick={() => setOpen((value) => !value)} className={`inline-flex h-10 w-10 items-center justify-center border lg:hidden ${isDarkHeader ? "border-white/20 text-white" : "border-slate-300 text-ink"}`} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}>
