@@ -8,6 +8,13 @@
       "when": 1788166818530,
       "tag": "0000_lean_jackal",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1788253200000,
+      "tag": "0001_sequential_ids",
+      "breakpoints": true
     }
   ]
 }
