@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import nodemailer from "nodemailer";
+import { sendGmailMessage } from "./gmailApi";
 import { saveCoachingEnrollment, saveContactSubmission } from "./db";
 
 
@@ -84,27 +84,14 @@ const studentLabelMap: Record<keyof StudentEnrollment, string> = {
 };
 
 async function sendFormNotification(input: FormSubmission) {
-  const password = process.env.GMAIL_SMTP_APP_PASSWORD;
-  if (!password) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Email delivery is not configured." });
-
   const rows = (Object.keys(labelMap) as Array<keyof FormSubmission>)
     .filter((key) => key !== "honeypot" && key !== "kind" && Boolean(input[key]))
     .map((key) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #e5ece9;font-weight:600;color:#52615e">${labelMap[key]}</td><td style="padding:8px 12px;border-bottom:1px solid #e5ece9">${escapeHtml(String(input[key]))}</td></tr>`)
     .join("");
   const subject = `[Zulubing] ${input.kind === "careers" ? "Careers enquiry" : input.kind === "expert" ? "Expert session request" : "New project enquiry"} from ${input.name}`;
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    auth: { user: "development.zulubing@gmail.com", pass: password },
-    connectionTimeout: 12_000,
-    greetingTimeout: 12_000,
-    socketTimeout: 20_000,
-  });
 
   try {
-    await transporter.sendMail({
+    await sendGmailMessage({
       from: "Zulubing Website <development.zulubing@gmail.com>",
       to: "development.zulubing@gmail.com",
       replyTo: input.email,
@@ -113,35 +100,20 @@ async function sendFormNotification(input: FormSubmission) {
       text: `Zulubing ${input.kind} submission from ${input.name}. Reply to ${input.email}.`,
     });
   } catch (error) {
-    console.error("[Email] Gmail SMTP delivery failed", error instanceof Error ? error.message : "unknown error");
+    console.error("[Email] Gmail API delivery failed", error instanceof Error ? error.message : "unknown error");
     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "We could not deliver your message right now. Please email development.zulubing@gmail.com directly." });
-  } finally {
-    transporter.close();
   }
 }
 
 async function sendStudentEnrollmentNotification(input: StudentEnrollment) {
-  const password = process.env.GMAIL_SMTP_APP_PASSWORD;
-  if (!password) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Email delivery is not configured." });
-
   const rows = (Object.keys(studentLabelMap) as Array<keyof StudentEnrollment>)
     .filter((key) => key !== "honeypot" && Boolean(input[key]))
     .map((key) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #e5ece9;font-weight:600;color:#52615e">${studentLabelMap[key]}</td><td style="padding:8px 12px;border-bottom:1px solid #e5ece9">${escapeHtml(String(input[key]))}</td></tr>`)
     .join("");
   const subject = `[Zulubing] New coaching enrollment from ${input.studentName} — ${input.course}`;
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    auth: { user: "development.zulubing@gmail.com", pass: password },
-    connectionTimeout: 12_000,
-    greetingTimeout: 12_000,
-    socketTimeout: 20_000,
-  });
 
   try {
-    await transporter.sendMail({
+    await sendGmailMessage({
       from: "Zulubing Website <development.zulubing@gmail.com>",
       to: "development.zulubing@gmail.com",
       replyTo: input.email,
@@ -150,10 +122,8 @@ async function sendStudentEnrollmentNotification(input: StudentEnrollment) {
       text: `Zulubing coaching enrollment from ${input.studentName} for ${input.course}. Reply to ${input.email}.`,
     });
   } catch (error) {
-    console.error("[Email] Gmail SMTP delivery failed for coaching enrollment", error instanceof Error ? error.message : "unknown error");
+    console.error("[Email] Gmail API delivery failed for coaching enrollment", error instanceof Error ? error.message : "unknown error");
     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "We could not deliver your enrollment right now. Please email development.zulubing@gmail.com directly." });
-  } finally {
-    transporter.close();
   }
 }
 

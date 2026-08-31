@@ -1,15 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const smtp = vi.hoisted(() => ({
-  sendMail: vi.fn(),
-  close: vi.fn(),
+const gmailApi = vi.hoisted(() => ({
+  sendGmailMessage: vi.fn(),
 }));
 
-vi.mock("nodemailer", () => ({
-  default: {
-    createTransport: vi.fn(() => smtp),
-  },
-}));
+vi.mock("./gmailApi", () => gmailApi);
 
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
@@ -21,15 +16,13 @@ const createContext = (): TrpcContext => ({
 });
 
 afterEach(() => {
-  smtp.sendMail.mockReset();
-  smtp.close.mockReset();
+  gmailApi.sendGmailMessage.mockReset();
   vi.unstubAllGlobals();
 });
 
 describe("contact.submit", () => {
-  it("sends a validated submission through Gmail SMTP", async () => {
-    vi.stubEnv("GMAIL_SMTP_APP_PASSWORD", "1234567890123456");
-    smtp.sendMail.mockResolvedValue({ messageId: "smtp_message_123" });
+  it("sends a validated submission through the Gmail API", async () => {
+    gmailApi.sendGmailMessage.mockResolvedValue(undefined);
 
     const result = await appRouter.createCaller(createContext()).contact.submit({
       kind: "contact",
@@ -41,18 +34,16 @@ describe("contact.submit", () => {
     });
 
     expect(result).toEqual({ success: true });
-    expect(smtp.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+    expect(gmailApi.sendGmailMessage).toHaveBeenCalledWith(expect.objectContaining({
       from: "Zulubing Website <development.zulubing@gmail.com>",
       to: "development.zulubing@gmail.com",
       replyTo: "ada@example.com",
       subject: expect.stringContaining("New project enquiry"),
     }));
-    expect(smtp.close).toHaveBeenCalledOnce();
   });
 
   it("returns a safe delivery error when Gmail rejects the message", async () => {
-    vi.stubEnv("GMAIL_SMTP_APP_PASSWORD", "1234567890123456");
-    smtp.sendMail.mockRejectedValue(new Error("SMTP authentication failed"));
+    gmailApi.sendGmailMessage.mockRejectedValue(new Error("Gmail API send failed: 401"));
 
     await expect(appRouter.createCaller(createContext()).contact.submit({
       kind: "expert",
@@ -61,12 +52,9 @@ describe("contact.submit", () => {
       description: "We need help with an AI-ready data platform.",
       honeypot: "",
     })).rejects.toThrow("Please email development.zulubing@gmail.com directly.");
-    expect(smtp.close).toHaveBeenCalledOnce();
   });
 
   it("silently accepts the honeypot without sending email", async () => {
-    vi.stubEnv("GMAIL_SMTP_APP_PASSWORD", "1234567890123456");
-
     const result = await appRouter.createCaller(createContext()).contact.submit({
       kind: "careers",
       name: "Spam Bot",
@@ -75,6 +63,6 @@ describe("contact.submit", () => {
     });
 
     expect(result).toEqual({ success: true });
-    expect(smtp.sendMail).not.toHaveBeenCalled();
+    expect(gmailApi.sendGmailMessage).not.toHaveBeenCalled();
   });
 });
