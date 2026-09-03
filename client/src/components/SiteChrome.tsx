@@ -40,11 +40,21 @@ export function PageMeta({ title, description, path }: { title: string; descript
 function NavMenu({ label, href, items, activeMenu, setActiveMenu, dark = false }: { label: string; href: string; items: { slug: string; title: string; summary: string }[]; activeMenu: string | null; setActiveMenu: Dispatch<SetStateAction<string | null>>; dark?: boolean }) {
   const open = activeMenu === label;
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  // Horizontal nudge that keeps the panel inside the viewport. The panel is
+  // centred on its own nav label, so for labels near either edge a 680px panel
+  // would otherwise hang off-screen.
+  const [offset, setOffset] = useState(0);
+
   const cancelClose = () => {
     if (closeTimer.current) {
       clearTimeout(closeTimer.current);
       closeTimer.current = null;
     }
+  };
+  const openMenu = () => {
+    cancelClose();
+    setActiveMenu(label);
   };
   const closeMenu = () => setActiveMenu((current) => current === label ? null : current);
   const scheduleClose = () => {
@@ -52,14 +62,42 @@ function NavMenu({ label, href, items, activeMenu, setActiveMenu, dark = false }
     closeTimer.current = setTimeout(() => {
       closeMenu();
       closeTimer.current = null;
-    }, 180);
+    }, 250);
   };
+
+  useEffect(() => cancelClose, []);
+
+  // Re-clamp whenever the panel opens and on every resize, so the menu stays
+  // usable while the window is being dragged to a narrower width.
+  useEffect(() => {
+    if (!open) return;
+    const clamp = () => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const margin = 16;
+      // Measure with any previous nudge removed, so the correction is absolute
+      // rather than compounding on each pass.
+      const rect = panel.getBoundingClientRect();
+      const left = rect.left - offset;
+      const right = rect.right - offset;
+      let next = 0;
+      if (left < margin) next = margin - left;
+      else if (right > window.innerWidth - margin) next = window.innerWidth - margin - right;
+      setOffset((current) => Math.round(next) === Math.round(current) ? current : next);
+    };
+    clamp();
+    window.addEventListener("resize", clamp);
+    return () => window.removeEventListener("resize", clamp);
+  }, [open, offset]);
+
   return (
-    <div className="nav-menu group relative" onMouseEnter={() => { cancelClose(); setActiveMenu(label); }} onMouseLeave={scheduleClose} onFocusCapture={() => { cancelClose(); setActiveMenu(label); }} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) closeMenu(); }}>
+    <div className="nav-menu group relative" onMouseEnter={openMenu} onMouseLeave={scheduleClose} onFocusCapture={openMenu} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) closeMenu(); }}>
       <Link href={href} aria-haspopup="true" aria-expanded={open} onClick={closeMenu} className={`nav-link inline-flex items-center gap-1.5 ${dark ? "text-white hover:text-teal" : "text-ink hover:text-cobalt"}`}>
         {label}<ChevronDown size={13} strokeWidth={1.7} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </Link>
-      <div onMouseEnter={cancelClose} className={`mega-panel pointer-events-none absolute left-1/2 top-[calc(100%+10px)] z-50 w-[min(680px,calc(100vw-32px))] -translate-x-1/2 transition duration-200 ${open ? "pointer-events-auto translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}>
+      {/* Sits flush against the label (top-full) with the 10px visual gap made
+          from padding, so the pointer never crosses dead space on its way in. */}
+      <div ref={panelRef} onMouseEnter={openMenu} style={{ transform: `translateX(calc(-50% + ${offset}px)) translateY(${open ? "0px" : "8px"})` }} className={`mega-panel pointer-events-none absolute left-1/2 top-full z-50 w-[min(680px,calc(100vw-32px))] pt-2.5 transition-[opacity,transform,visibility] duration-200 ${open ? "pointer-events-auto visible opacity-100" : "invisible opacity-0"}`}>
         <div className={`grid grid-cols-2 gap-x-8 gap-y-1 border p-5 shadow-[0_20px_50px_rgba(0,0,0,.15)] ${dark ? "border-teal/25 bg-[#06111d] text-white" : "border-slate-200 bg-white text-ink shadow-[0_20px_50px_rgba(8,19,31,0.08)]"}`}>
           <div className={`col-span-2 mb-2 flex items-center justify-between border-b pb-3 ${dark ? "border-white/10" : "border-slate-200"}`}>
             <span className={`mono-label ${dark ? "text-teal" : "text-cobalt"}`}>{label} / CAPABILITIES</span>
