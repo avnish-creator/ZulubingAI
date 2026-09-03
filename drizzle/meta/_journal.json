@@ -15,6 +15,13 @@
       "when": 1788253200000,
       "tag": "0001_sequential_ids",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1788512400000,
+      "tag": "0002_workshop_enrollments",
+      "breakpoints": true
     }
   ]
 }

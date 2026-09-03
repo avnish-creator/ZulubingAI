@@ -51,6 +51,23 @@ export type CoachingEnrollment = typeof coachingEnrollments.$inferSelect;
 export type InsertCoachingEnrollment = typeof coachingEnrollments.$inferInsert;
 
 /**
+ * Workshop / seminar enrollment submissions table
+ */
+export const workshopEnrollments = mysqlTable("workshop_enrollments", {
+  id: int("id").autoincrement().primaryKey(),
+  studentName: varchar("studentName", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 64 }).default(""),
+  seminar: varchar("seminar", { length: 255 }).notNull(),
+  status: varchar("status", { length: 64 }).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WorkshopEnrollment = typeof workshopEnrollments.$inferSelect;
+export type InsertWorkshopEnrollment = typeof workshopEnrollments.$inferInsert;
+
+/**
  * Contact & consultation form submissions table
  */
 export const contactSubmissions = mysqlTable("contact_submissions", {

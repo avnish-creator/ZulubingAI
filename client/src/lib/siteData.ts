@@ -156,6 +156,13 @@ export const coachingPrograms = [
   { slug: "machine-learning", title: "Machine Learning", summary: "Supervised, unsupervised, and deep learning with Python and scikit-learn.", description: "Build a solid ML foundation—from regression and classification through neural networks—with hands-on projects using Python, scikit-learn, and TensorFlow.", icon: Sparkles, duration: "1 months", level: "Intermediate", topics: ["Python for ML", "Supervised learning", "Unsupervised learning", "Feature engineering", "Deep learning basics", "Model deployment (MLOps)"] },
 ];
 
+/**
+ * Upcoming seminars / workshops shown on /coaching/seminars.
+ * Add one entry per scheduled event; `title` is the value stored in the database.
+ * Leave the array empty and the page shows a "schedule coming soon" state instead of the form.
+ */
+export const upcomingSeminars: { slug: string; title: string; date: string; mode: string; summary: string }[] = [];
+
 export const engagementModels = [
   { title: "Consulting & Advisory", description: "Clarify the current state, compare target-state options, and build an actionable architecture or transformation roadmap.", bestFor: "Teams defining direction", duration: "Short-term or periodic", team: "Senior advisors", flexibility: "High", typical: "Assessment, roadmap, architecture review" },
   { title: "Project Delivery", description: "Move from an agreed scope to a working data capability with delivery sequencing, technical build, enablement, and handover.", bestFor: "A defined transformation outcome", duration: "Fixed-scope", team: "Delivery pod", flexibility: "Scoped with change control", typical: "Platform, migration, or analytics build" },

@@ -6,9 +6,12 @@ import {
   InsertCoachingEnrollment,
   InsertContactSubmission,
   InsertUser,
+  InsertWorkshopEnrollment,
+  WorkshopEnrollment,
   coachingEnrollments,
   contactSubmissions,
   users,
+  workshopEnrollments,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -117,6 +120,24 @@ export async function saveCoachingEnrollment(enrollment: InsertCoachingEnrollmen
 }
 
 /**
+ * Save a new workshop / seminar enrollment to the database
+ */
+export async function saveWorkshopEnrollment(enrollment: InsertWorkshopEnrollment): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save workshop enrollment: database not connected");
+    return;
+  }
+
+  try {
+    await db.insert(workshopEnrollments).values(enrollment);
+  } catch (error) {
+    console.error("[Database] Failed to save workshop enrollment:", error);
+    throw error;
+  }
+}
+
+/**
  * Save a new contact / consultation submission to the database
  */
 export async function saveContactSubmission(submission: InsertContactSubmission): Promise<void> {
@@ -141,6 +162,15 @@ export async function getCoachingEnrollments(limit = 100): Promise<CoachingEnrol
   const db = await getDb();
   if (!db) return [];
   return db.select().from(coachingEnrollments).orderBy(desc(coachingEnrollments.createdAt)).limit(limit);
+}
+
+/**
+ * Fetch recent workshop / seminar enrollments
+ */
+export async function getWorkshopEnrollments(limit = 100): Promise<WorkshopEnrollment[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(workshopEnrollments).orderBy(desc(workshopEnrollments.createdAt)).limit(limit);
 }
 
 /**
