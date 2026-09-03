@@ -21,14 +21,14 @@ afterEach(() => {
 });
 
 describe("workshops.enroll", () => {
-  it("sends a validated seminar registration through the Gmail API", async () => {
+  it("sends a validated workshop registration through the Gmail API", async () => {
     gmailApi.sendGmailMessage.mockResolvedValue(undefined);
 
     const result = await appRouter.createCaller(createContext()).workshops.enroll({
       studentName: "Ada Lovelace",
       email: "ada@example.com",
       phone: "+91 90000 00000",
-      seminar: "Intro to Data Engineering",
+      jobReadyInterest: true,
       honeypot: "",
     });
 
@@ -37,7 +37,7 @@ describe("workshops.enroll", () => {
       from: "Zulubing Website <development.zulubing@gmail.com>",
       to: "development.zulubing@gmail.com",
       replyTo: "ada@example.com",
-      subject: expect.stringContaining("Intro to Data Engineering"),
+      subject: expect.stringContaining("Data Analytics Workshop"),
     }));
   });
 
@@ -47,7 +47,6 @@ describe("workshops.enroll", () => {
     await expect(appRouter.createCaller(createContext()).workshops.enroll({
       studentName: "Grace Hopper",
       email: "grace@example.com",
-      seminar: "Agentic AI Workshop",
       honeypot: "",
     })).rejects.toThrow("Please email development.zulubing@gmail.com directly.");
   });
@@ -56,7 +55,6 @@ describe("workshops.enroll", () => {
     const result = await appRouter.createCaller(createContext()).workshops.enroll({
       studentName: "Spam Bot",
       email: "spam@example.com",
-      seminar: "Anything",
       honeypot: "filled",
     });
 
@@ -64,11 +62,24 @@ describe("workshops.enroll", () => {
     expect(gmailApi.sendGmailMessage).not.toHaveBeenCalled();
   });
 
+  it("reports the job-ready opt-in as an explicit No when unchecked", async () => {
+    gmailApi.sendGmailMessage.mockResolvedValue(undefined);
+
+    await appRouter.createCaller(createContext()).workshops.enroll({
+      studentName: "Alan Turing",
+      email: "alan@example.com",
+      honeypot: "",
+    });
+
+    const sent = gmailApi.sendGmailMessage.mock.calls[0][0] as { html: string; text: string };
+    expect(sent.text).toContain("Job-ready sessions: No");
+    expect(sent.html).toContain("Interested in job-ready live sessions");
+  });
+
   it("rejects an invalid email address", async () => {
     await expect(appRouter.createCaller(createContext()).workshops.enroll({
       studentName: "Bad Email",
       email: "not-an-email",
-      seminar: "Intro to Data Engineering",
       honeypot: "",
     })).rejects.toThrow();
     expect(gmailApi.sendGmailMessage).not.toHaveBeenCalled();

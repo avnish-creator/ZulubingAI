@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -59,6 +59,7 @@ export const workshopEnrollments = mysqlTable("workshop_enrollments", {
   email: varchar("email", { length: 320 }).notNull(),
   phone: varchar("phone", { length: 64 }).default(""),
   seminar: varchar("seminar", { length: 255 }).notNull(),
+  jobReadyInterest: boolean("jobReadyInterest").default(false).notNull(),
   status: varchar("status", { length: 64 }).default("pending").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

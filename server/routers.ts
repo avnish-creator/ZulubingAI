@@ -1,4 +1,4 @@
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, CURRENT_WORKSHOP } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
@@ -44,7 +44,7 @@ const workshopEnrollmentSchema = z.object({
   studentName: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(320),
   phone: z.string().trim().max(80).optional().default(""),
-  seminar: z.string().trim().min(1).max(160),
+  jobReadyInterest: z.boolean().optional().default(false),
   honeypot: z.string().max(200).optional().default(""),
 });
 
@@ -80,7 +80,7 @@ const workshopLabelMap: Record<keyof WorkshopEnrollment, string> = {
   studentName: "Name",
   email: "Email",
   phone: "Phone",
-  seminar: "Seminar / Workshop",
+  jobReadyInterest: "Interested in job-ready live sessions",
   honeypot: "",
 };
 
@@ -145,11 +145,13 @@ async function sendStudentEnrollmentNotification(input: StudentEnrollment) {
 }
 
 async function sendWorkshopEnrollmentNotification(input: WorkshopEnrollment) {
+  const display = (key: keyof WorkshopEnrollment) =>
+    typeof input[key] === "boolean" ? (input[key] ? "Yes" : "No") : String(input[key]);
   const rows = (Object.keys(workshopLabelMap) as Array<keyof WorkshopEnrollment>)
-    .filter((key) => key !== "honeypot" && Boolean(input[key]))
-    .map((key) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #e5ece9;font-weight:600;color:#52615e">${workshopLabelMap[key]}</td><td style="padding:8px 12px;border-bottom:1px solid #e5ece9">${escapeHtml(String(input[key]))}</td></tr>`)
+    .filter((key) => key !== "honeypot" && (typeof input[key] === "boolean" || Boolean(input[key])))
+    .map((key) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #e5ece9;font-weight:600;color:#52615e">${workshopLabelMap[key]}</td><td style="padding:8px 12px;border-bottom:1px solid #e5ece9">${escapeHtml(display(key))}</td></tr>`)
     .join("");
-  const subject = `[Zulubing] New seminar registration from ${input.studentName} — ${input.seminar}`;
+  const subject = `[Zulubing] ${CURRENT_WORKSHOP} registration from ${input.studentName}`;
 
   try {
     await sendGmailMessage({
@@ -157,11 +159,11 @@ async function sendWorkshopEnrollmentNotification(input: WorkshopEnrollment) {
       to: "development.zulubing@gmail.com",
       replyTo: input.email,
       subject,
-      html: `<div style="font-family:Arial,sans-serif;color:#08131f"><h2 style="color:#11c4c2">📅 New Seminar Registration</h2><p>A student registered for <strong>${escapeHtml(input.seminar)}</strong> via the Zulubing seminars form.</p><table style="border-collapse:collapse;width:100%;max-width:720px">${rows}</table><br/><p style="color:#52615e;font-size:13px">This registration was submitted from the Zulubing website seminars form.</p></div>`,
-      text: `Zulubing seminar registration from ${input.studentName} for ${input.seminar}. Reply to ${input.email}.`,
+      html: `<div style="font-family:Arial,sans-serif;color:#08131f"><h2 style="color:#11c4c2">📅 New Workshop Registration</h2><p>A new registration came in for <strong>${escapeHtml(CURRENT_WORKSHOP)}</strong>.</p><table style="border-collapse:collapse;width:100%;max-width:720px">${rows}</table><br/><p style="color:#52615e;font-size:13px">Submitted from the Zulubing website workshop registration form.</p></div>`,
+      text: `${CURRENT_WORKSHOP} registration from ${input.studentName}. Job-ready sessions: ${input.jobReadyInterest ? "Yes" : "No"}. Reply to ${input.email}.`,
     });
   } catch (error) {
-    console.error("[Email] Gmail API delivery failed for seminar registration", error instanceof Error ? error.message : "unknown error");
+    console.error("[Email] Gmail API delivery failed for workshop registration", error instanceof Error ? error.message : "unknown error");
     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "We could not deliver your registration right now. Please email development.zulubing@gmail.com directly." });
   }
 }
@@ -218,8 +220,6 @@ const submitEnrollment = publicProcedure.input(studentEnrollmentSchema).mutation
   return { success: true } as const;
 });
 
-
-
 const submitWorkshopEnrollment = publicProcedure.input(workshopEnrollmentSchema).mutation(async ({ input }) => {
   if (input.honeypot.trim()) return { success: true } as const;
 
@@ -228,7 +228,8 @@ const submitWorkshopEnrollment = publicProcedure.input(workshopEnrollmentSchema)
       studentName: input.studentName,
       email: input.email,
       phone: input.phone || "",
-      seminar: input.seminar,
+      seminar: CURRENT_WORKSHOP,
+      jobReadyInterest: input.jobReadyInterest,
     });
   } catch (dbErr) {
     console.error("[Database] Failed to save workshop enrollment:", dbErr);

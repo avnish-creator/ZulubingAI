@@ -10,7 +10,7 @@ import Home from "@/pages/Home";
 import { ApproachPage, CollectionPage, CompanyPage, DetailPage, FounderPage, TechnologyPage, EngagementModelsPage, AboutPage, PolicyPage, PlaceholderPage, MissingPage } from "@/pages/ContentPages";
 import { ContactPage, TalkToExpertPage } from "@/pages/ContactPages";
 import { CoachingPage, CoachingDetailPage } from "@/pages/CoachingPage";
-import { SeminarsPage } from "@/pages/SeminarsPage";
+import { WorkshopPage } from "@/pages/WorkshopPage";
 import LearningMentorshipPage from "@/pages/LearningMentorship";
 import { resetScrollToTop } from "@/lib/navigation";
 function ScrollToTop() {
@@ -58,7 +58,7 @@ function Router() {
     <Route path="/engagement-models" component={EngagementModelsPage} />
     <Route path="/learning-mentorship" component={LearningMentorshipPage} />
     <Route path="/coaching" component={CoachingPage} />
-    <Route path="/coaching/seminars" component={SeminarsPage} />
+    <Route path="/coaching/workshop" component={WorkshopPage} />
     <Route path="/coaching/:slug" component={(params) => <CoachingDetailPage slug={params.params.slug} />} />
     <Route path="/contact" component={ContactPage} />
     <Route path="/talk-to-an-expert" component={TalkToExpertPage} />

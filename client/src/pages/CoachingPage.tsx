@@ -88,7 +88,7 @@ export function CoachingPage() {
   return <>
     <PageMeta title="Coaching Programs — Zulubing" description="Enroll in Zulubing's industry-aligned coaching programs in Data Analytics, Data Engineering, MERN Stack, Full Stack Development, Agentic AI, and Machine Learning." path="/coaching" />
     <PageHero eyebrow="10 / COACHING" title="Learn with purpose. Build with confidence." description="Structured, mentor-led coaching programs designed to take you from fundamentals to job-ready skills in data, AI, and software development.">
-      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3"><Link href="/coaching#enroll" className="text-link inline-flex">Enroll now <ArrowRight size={15} /></Link><Link href="/coaching/seminars" className="text-link inline-flex">Upcoming seminars <ArrowRight size={15} /></Link></div>
+      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3"><Link href="/coaching/workshop" className="text-link inline-flex">Register for the free workshop <ArrowRight size={15} /></Link><Link href="/coaching#enroll" className="text-link inline-flex">Enroll in a program <ArrowRight size={15} /></Link></div>
     </PageHero>
 
     <main className="bg-paper">

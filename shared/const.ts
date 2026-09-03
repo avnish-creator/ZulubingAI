@@ -35,3 +35,8 @@ export const decodeOAuthState = (state: string): OAuthState => {
   }
   return { redirectUri: decoded };
 };
+
+// The workshop currently open for registration. The server stamps this onto
+// every row in `workshop_enrollments` so the front end cannot send an
+// arbitrary event name, and so past rows stay attributable when this changes.
+export const CURRENT_WORKSHOP = "Data Analytics Workshop";
