@@ -1,10 +1,15 @@
--- TiDB caches AUTO_INCREMENT ids in blocks of 30000 per node, so ids jump
--- (1, 30001, 60001, ...) whenever a different node or connection serves the
--- insert. AUTO_ID_CACHE 1 switches TiDB to centralized allocation so ids stay
--- sequential. This is a TiDB-specific statement and is a no-op risk on plain
--- MySQL, which does not support AUTO_ID_CACHE.
-ALTER TABLE `coaching_enrollments` AUTO_ID_CACHE 1;
---> statement-breakpoint
-ALTER TABLE `contact_submissions` AUTO_ID_CACHE 1;
---> statement-breakpoint
-ALTER TABLE `users` AUTO_ID_CACHE 1;
+-- Intentionally empty.
+--
+-- This migration previously tried to run:
+--   ALTER TABLE <t> AUTO_ID_CACHE 1;
+-- to stop TiDB handing out AUTO_INCREMENT ids in blocks of 30000 per node
+-- (which produces jumps like 1, 30001, 60001).
+--
+-- TiDB rejects that statement with "Can't Alter AUTO_ID_CACHE between 1 and
+-- non-1, the underlying implementation is different": cache 1 uses a separate,
+-- centralized id allocator, so it can only be set as a table option at
+-- CREATE TABLE time (see 0002_workshop_enrollments.sql), never added later.
+--
+-- Making an existing table sequential therefore requires recreating it with
+-- `) AUTO_ID_CACHE = 1;` and migrating the rows across -- a destructive
+-- operation, so it is deliberately not automated here.
